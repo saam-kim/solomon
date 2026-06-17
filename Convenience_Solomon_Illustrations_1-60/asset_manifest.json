@@ -1,0 +1,362 @@
+[
+  {
+    "number": 1,
+    "asset_name": "Jihu_Neutral",
+    "file": "01_Jihu_Neutral.png",
+    "source_file": "친절한_편의점_직원.png"
+  },
+  {
+    "number": 2,
+    "asset_name": "Jihu_Happy",
+    "file": "02_Jihu_Happy.png",
+    "source_file": "친근한_미소의_남자_캐릭터.png"
+  },
+  {
+    "number": 3,
+    "asset_name": "Jihu_Worried",
+    "file": "03_Jihu_Worried.png",
+    "source_file": "걱정하는_편의점_직원.png"
+  },
+  {
+    "number": 4,
+    "asset_name": "Jihu_Determined",
+    "file": "04_Jihu_Determined.png",
+    "source_file": "직원_유니폼을_입은_남성.png"
+  },
+  {
+    "number": 5,
+    "asset_name": "Jihu_Scared",
+    "file": "05_Jihu_Scared.png",
+    "source_file": "당황한_모습의_젊은_남성.png"
+  },
+  {
+    "number": 6,
+    "asset_name": "Owner_Neutral",
+    "file": "06_Owner_Neutral.png",
+    "source_file": "미들_aged_남성의_정장_초상화.png"
+  },
+  {
+    "number": 7,
+    "asset_name": "Owner_Happy",
+    "file": "07_Owner_Happy.png",
+    "source_file": "친근한_웃음을_지닌_중년_남성.png"
+  },
+  {
+    "number": 8,
+    "asset_name": "Owner_Worried",
+    "file": "08_Owner_Worried.png",
+    "source_file": "조용한_걱정에_잠긴_남성.png"
+  },
+  {
+    "number": 9,
+    "asset_name": "Owner_Angry",
+    "file": "09_Owner_Angry.png",
+    "source_file": "엄격한_경고를_보내는_모습.png"
+  },
+  {
+    "number": 10,
+    "asset_name": "Sujin_Neutral",
+    "file": "10_Sujin_Neutral.png",
+    "source_file": "동양인_소녀의_고등학교_교복_초상화.png"
+  },
+  {
+    "number": 11,
+    "asset_name": "Sujin_Happy",
+    "file": "11_Sujin_Happy.png",
+    "source_file": "젊은_여학생의_밝은_미소.png"
+  },
+  {
+    "number": 12,
+    "asset_name": "Sujin_Sad",
+    "file": "12_Sujin_Sad.png",
+    "source_file": "조용한_학교_소녀의_초상.png"
+  },
+  {
+    "number": 13,
+    "asset_name": "Youth_Sly",
+    "file": "13_Youth_Sly.png",
+    "source_file": "스마트폰을_든_시크한_청년.png"
+  },
+  {
+    "number": 14,
+    "asset_name": "Youth_Worried",
+    "file": "14_Youth_Worried.png",
+    "source_file": "수줍은_표정의_남성_캐릭터.png"
+  },
+  {
+    "number": 15,
+    "asset_name": "Youth_Scared",
+    "file": "15_Youth_Scared.png",
+    "source_file": "공포에_휩싸인_청년.png"
+  },
+  {
+    "number": 16,
+    "asset_name": "Child_Neutral",
+    "file": "16_Child_Neutral.png",
+    "source_file": "행복한_소년과_10000원.png"
+  },
+  {
+    "number": 17,
+    "asset_name": "Child_Happy",
+    "file": "17_Child_Happy.png",
+    "source_file": "승리의_에너지_넘치는_소년.png"
+  },
+  {
+    "number": 18,
+    "asset_name": "Child_Scared",
+    "file": "18_Child_Scared.png",
+    "source_file": "깜짝_놀란_소년의_표정.png"
+  },
+  {
+    "number": 19,
+    "asset_name": "OfficeWorker_Neutral",
+    "file": "19_OfficeWorker_Neutral.png",
+    "source_file": "흠집_난_정장_미안한_표정.png"
+  },
+  {
+    "number": 20,
+    "asset_name": "OfficeWorker_Angry",
+    "file": "20_OfficeWorker_Angry.png",
+    "source_file": "울분에_찬_분노의_제스처.png"
+  },
+  {
+    "number": 21,
+    "asset_name": "OfficeWorker_Happy",
+    "file": "21_OfficeWorker_Happy.png",
+    "source_file": "자신감_넘치는_비즈니스_남성_모습.png"
+  },
+  {
+    "number": 22,
+    "asset_name": "Elder_Neutral",
+    "file": "22_Elder_Neutral.png",
+    "source_file": "따뜻한_미소의_노신사.png"
+  },
+  {
+    "number": 23,
+    "asset_name": "Elder_Worried",
+    "file": "23_Elder_Worried.png",
+    "source_file": "걱정스러운_노인_남성.png"
+  },
+  {
+    "number": 24,
+    "asset_name": "Cat_Neutral",
+    "file": "24_Cat_Neutral.png",
+    "source_file": "작은_오렌지색_고양이_새끼.png"
+  },
+  {
+    "number": 25,
+    "asset_name": "Cat_Scared",
+    "file": "25_Cat_Scared.png",
+    "source_file": "놀란_새끼_고양이.png"
+  },
+  {
+    "number": 26,
+    "asset_name": "BG_ConvenienceCounter_Morning",
+    "file": "26_BG_ConvenienceCounter_Morning.png",
+    "source_file": "모던_편의점_내역.png"
+  },
+  {
+    "number": 27,
+    "asset_name": "BG_ConvenienceStore_Day",
+    "file": "27_BG_ConvenienceStore_Day.png",
+    "source_file": "모던_편의점_내부_모습.png"
+  },
+  {
+    "number": 28,
+    "asset_name": "BG_Counter_Sunset",
+    "file": "28_BG_Counter_Sunset.png",
+    "source_file": "황금_시간대의_편의점_풍경.png"
+  },
+  {
+    "number": 29,
+    "asset_name": "BG_Storage_Night",
+    "file": "29_BG_Storage_Night.png",
+    "source_file": "작은_창고의_정돈된_모습.png"
+  },
+  {
+    "number": 30,
+    "asset_name": "BG_Counter_Display",
+    "file": "30_BG_Counter_Display.png",
+    "source_file": "현대적인_편의점_내부_씬.png"
+  },
+  {
+    "number": 31,
+    "asset_name": "BG_StoreFloor_SpilledMilk",
+    "file": "31_BG_StoreFloor_SpilledMilk.png",
+    "source_file": "편의점_내부와_엎질러진_음료.png"
+  },
+  {
+    "number": 32,
+    "asset_name": "BG_OutdoorTable_RainyNight",
+    "file": "32_BG_OutdoorTable_RainyNight.png",
+    "source_file": "비_내리는_도시의_밤_풍경.png"
+  },
+  {
+    "number": 33,
+    "asset_name": "BG_ConvenienceStore_ExteriorNight",
+    "file": "33_BG_ConvenienceStore_ExteriorNight.png",
+    "source_file": "편안한_밤의_편의점_풍경.png"
+  },
+  {
+    "number": 34,
+    "asset_name": "CG_FirstShift_Greeting",
+    "file": "34_CG_FirstShift_Greeting.png",
+    "source_file": "편의점_카운터의_대화.png"
+  },
+  {
+    "number": 35,
+    "asset_name": "CG_LaborContract_Signing",
+    "file": "35_CG_LaborContract_Signing.png",
+    "source_file": "편의점에서_계약서_서명하는_장면.png"
+  },
+  {
+    "number": 36,
+    "asset_name": "CG_LimitedBread_Discovery",
+    "file": "36_CG_LimitedBread_Discovery.png",
+    "source_file": "로얄_크림파이_한정판_놀라운_순간.png"
+  },
+  {
+    "number": 37,
+    "asset_name": "CG_IDPhoto_Check",
+    "file": "37_CG_IDPhoto_Check.png",
+    "source_file": "편의점에서의_id_확인_순간.png"
+  },
+  {
+    "number": 38,
+    "asset_name": "CG_DisposalFood_CCTV",
+    "file": "38_CG_DisposalFood_CCTV.png",
+    "source_file": "불안한_재고_점검_중.png"
+  },
+  {
+    "number": 39,
+    "asset_name": "CG_Child_NintendoPayment",
+    "file": "39_CG_Child_NintendoPayment.png",
+    "source_file": "편의점에서의_게임_대화.png"
+  },
+  {
+    "number": 40,
+    "asset_name": "CG_SpilledMilk_WarningSign",
+    "file": "40_CG_SpilledMilk_WarningSign.png",
+    "source_file": "편의점에서의_미끄럼_주의_상황.png"
+  },
+  {
+    "number": 41,
+    "asset_name": "CG_OfficeWorker_SlipFall",
+    "file": "41_CG_OfficeWorker_SlipFall.png",
+    "source_file": "편의점에서_발생한_사고.png"
+  },
+  {
+    "number": 42,
+    "asset_name": "CG_RainyKitten_UnderTable",
+    "file": "42_CG_RainyKitten_UnderTable.png",
+    "source_file": "비_오는_밤의_고독한_새끼_고양이.png"
+  },
+  {
+    "number": 43,
+    "asset_name": "CG_Payday_DeductionNotice",
+    "file": "43_CG_Payday_DeductionNotice.png",
+    "source_file": "편의점에서의_급여_논란.png"
+  },
+  {
+    "number": 44,
+    "asset_name": "Prop_LaborContract",
+    "file": "44_Prop_LaborContract.png",
+    "source_file": "근로계약서_상단_뷰.png"
+  },
+  {
+    "number": 45,
+    "asset_name": "Prop_LimitedBread",
+    "file": "45_Prop_LimitedBread.png",
+    "source_file": "한정판_별빛_크림파이.png"
+  },
+  {
+    "number": 46,
+    "asset_name": "Prop_MobileIDPhoto",
+    "file": "46_Prop_MobileIDPhoto.png",
+    "source_file": "신분증_인증_화면_ui.png"
+  },
+  {
+    "number": 47,
+    "asset_name": "Prop_DisposalFood",
+    "file": "47_Prop_DisposalFood.png",
+    "source_file": "편의점_음식_팩_장면.png"
+  },
+  {
+    "number": 48,
+    "asset_name": "Prop_NintendoBox",
+    "file": "48_Prop_NintendoBox.png",
+    "source_file": "엑셀리온_x1_고급_게임기_패키지.png"
+  },
+  {
+    "number": 49,
+    "asset_name": "Prop_ParentCreditCard",
+    "file": "49_Prop_ParentCreditCard.png",
+    "source_file": "프리미엄_카드_디자인_렌더링.png"
+  },
+  {
+    "number": 50,
+    "asset_name": "Prop_WetFloorSign",
+    "file": "50_Prop_WetFloorSign.png",
+    "source_file": "노란색_미끄럼주의_경고_표지.png"
+  },
+  {
+    "number": 51,
+    "asset_name": "Prop_SpilledMilk",
+    "file": "51_Prop_SpilledMilk.png",
+    "source_file": "초코우유_유리_부서짐.png"
+  },
+  {
+    "number": 52,
+    "asset_name": "Prop_PayStatement",
+    "file": "52_Prop_PayStatement.png",
+    "source_file": "급여명세서_상세_이미지.png"
+  },
+  {
+    "number": 53,
+    "asset_name": "Prop_BankingApp_Deduction",
+    "file": "53_Prop_BankingApp_Deduction.png",
+    "source_file": "모바일_뱅킹_앱_인터페이스.png"
+  },
+  {
+    "number": 54,
+    "asset_name": "UI_LawPoint",
+    "file": "54_UI_LawPoint.png",
+    "source_file": "법과_정의의_아이콘.png"
+  },
+  {
+    "number": 55,
+    "asset_name": "UI_RelationPoint",
+    "file": "55_UI_RelationPoint.png",
+    "source_file": "따뜻한_관계_배지.png"
+  },
+  {
+    "number": 56,
+    "asset_name": "UI_ProfitPoint",
+    "file": "56_UI_ProfitPoint.png",
+    "source_file": "수익_보상_배지_아이콘.png"
+  },
+  {
+    "number": 57,
+    "asset_name": "UI_WrongAnswerNote",
+    "file": "57_UI_WrongAnswerNote.png",
+    "source_file": "오답노트_ui_디자인.png"
+  },
+  {
+    "number": 58,
+    "asset_name": "UI_LegalExplanationFrame",
+    "file": "58_UI_LegalExplanationFrame.png",
+    "source_file": "법률_해설_인터페이스_패널.png"
+  },
+  {
+    "number": 59,
+    "asset_name": "UI_ChoiceButton",
+    "file": "59_UI_ChoiceButton.png",
+    "source_file": "선택지_a_버튼_디자인.png"
+  },
+  {
+    "number": 60,
+    "asset_name": "UI_EndingResultCard",
+    "file": "60_UI_EndingResultCard.png",
+    "source_file": "게임_결과_카드_디자인.png"
+  }
+]

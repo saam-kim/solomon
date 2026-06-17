@@ -1,0 +1,13 @@
+*.ps1
+*.py
+*.js
+index_backup.html
+index_brain.html
+index_docs.html
+index_reconstructed.html
+index_reconstructed_global.html
+index_restored_longest.html
+*Backup.png
+/scratch/
+/.git/
+/C:/

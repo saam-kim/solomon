@@ -1,0 +1,74 @@
+[
+  {
+    "number": 61,
+    "asset_name": "BG_StoreExterior_ClosingCrisis",
+    "file": "61_BG_StoreExterior_ClosingCrisis.png",
+    "source_file": "비오는_밤_cu_편의점_번화가.png"
+  },
+  {
+    "number": 62,
+    "asset_name": "CG_Owner_TiredWithEvaluationSheet",
+    "file": "62_CG_Owner_TiredWithEvaluationSheet.png",
+    "source_file": "불안한_밤_편의점_인테리어.png"
+  },
+  {
+    "number": 63,
+    "asset_name": "CG_Jihu_LimitedBread_Dilemma",
+    "file": "63_CG_Jihu_LimitedBread_Dilemma.png",
+    "source_file": "한정판_크림파이의_순간.png"
+  },
+  {
+    "number": 64,
+    "asset_name": "CG_CCTVView_BackroomTension",
+    "file": "64_CG_CCTVView_BackroomTension.png",
+    "source_file": "편의점_창고의_비밀스러운_순간.png"
+  },
+  {
+    "number": 65,
+    "asset_name": "CG_SpilledMilk_LongQueue",
+    "file": "65_CG_SpilledMilk_LongQueue.png",
+    "source_file": "편의점의_긴급_상황.png"
+  },
+  {
+    "number": 66,
+    "asset_name": "CG_OfficeWorker_InsuranceProcessing",
+    "file": "66_CG_OfficeWorker_InsuranceProcessing.png",
+    "source_file": "편의점_사고_발생_신고.png"
+  },
+  {
+    "number": 67,
+    "asset_name": "CG_RainyNight_CatUnderTable",
+    "file": "67_CG_RainyNight_CatUnderTable.png",
+    "source_file": "비_오는_밤_편의점_앞_길가.png"
+  },
+  {
+    "number": 68,
+    "asset_name": "CG_Payday_CounterConfrontation",
+    "file": "68_CG_Payday_CounterConfrontation.png",
+    "source_file": "편의점_급여_확인의_순간.png"
+  },
+  {
+    "number": 69,
+    "asset_name": "CG_MobileLaborContract",
+    "file": "69_CG_MobileLaborContract.png",
+    "source_file": "편의점_계약_확인_중.png"
+  },
+  {
+    "number": 70,
+    "asset_name": "CG_Youth_ShowsPhoneID",
+    "file": "70_CG_Youth_ShowsPhoneID.png",
+    "source_file": "편의점에서의_긴장된_대치.png"
+  },
+  {
+    "number": 71,
+    "asset_name": "CG_Child_ParentCard_GameConsole",
+    "file": "71_CG_Child_ParentCard_GameConsole.png",
+    "source_file": "게임_콘솔_구매를_위한_설렘.png"
+  },
+  {
+    "number": 72,
+    "asset_name": "CG_HappyEnding_GroupShot",
+    "file": "72_CG_HappyEnding_GroupShot.png",
+    "source_file": "즐거운_편의점의_따뜻한_분위기.png"
+  }
+]

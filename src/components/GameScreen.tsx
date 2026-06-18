@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Scale, ChevronLeft, ChevronRight, Lightbulb, AlertTriangle, RefreshCw } from "lucide-react";
 import { lawPoints } from "../data/lawPoints";
 import { useGameState, validateReasoningText } from "../hooks/useGameState";
+import { assetUrl } from "../utils/assetMap";
 import { BackgroundLayer } from "./BackgroundLayer";
 import { CharacterLayer } from "./CharacterLayer";
 import { ChoicePanel } from "./ChoicePanel";
@@ -159,7 +160,7 @@ export function GameScreen() {
         {scene.mainIllustration && (
           <div 
             className={`event-cg-layer ${scene.mainIllustration ? "active" : ""}`}
-            style={{ backgroundImage: `url('src/assets/illustrations/1-60/${scene.mainIllustration}')` }}
+            style={{ backgroundImage: `url('${assetUrl(scene.mainIllustration)}')` }}
           />
         )}
 

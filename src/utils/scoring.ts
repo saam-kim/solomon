@@ -14,9 +14,9 @@ export const initialFlags: Flags = {
 };
 
 export const initialState: GameState = {
-  legalStability: 0,
-  relationship: 0,
-  storeTrust: 0,
+  legalStability: 50,
+  relationship: 50,
+  storeTrust: 50,
   jihuStress: 0,
   flags: initialFlags,
   currentSceneId: "intro",
@@ -29,6 +29,27 @@ export const initialState: GameState = {
   textScale: 1,
   quickMode: false,
   muted: true,
+
+  // Testimony states
+  currentTestimonyIdx: 0,
+  testimonyShowingSuccess: false,
+  successDialogueIdx: 0,
+  unlockedLaws: [],
+  isReasoningModalOpen: false,
+  reasoningMode: null,
+  reasoningChoiceId: null,
+  isRecoveryModalOpen: false,
+  recoveryLawId: null,
+  recoveryFeedback: null,
+  recoveryCharClass: null,
+  objectionActive: false,
+
+  isFeedbackModalOpen: false,
+  feedbackTitle: "",
+  feedbackBody: "",
+  feedbackLawDelta: 0,
+  feedbackRelationDelta: 0,
+  feedbackTrustDelta: 0,
 };
 
 export function matchesWhen(when: Partial<Flags> | undefined, flags: Flags) {
@@ -45,7 +66,7 @@ export function visibleChoices(scene: Scene, state: GameState): Choice[] {
 }
 
 export function clampScore(value: number) {
-  return Math.max(-12, Math.min(18, value));
+  return Math.max(0, Math.min(100, value));
 }
 
 export function applyChoiceEffect(state: GameState, choice: Choice): GameState {

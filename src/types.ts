@@ -58,10 +58,31 @@ export type LawPoint = {
   id: string;
   title: string;
   body: string;
+  desc?: string;
+  penalty?: string;
+};
+
+export type TestimonyStatement = {
+  text: string;
+  speaker: string;
+  isContradiction?: boolean;
+  correctLaw?: string;
+};
+
+export type TestimonySuccess = {
+  feedback: string;
+  law: number;
+  relation: number;
+  profit: number;
+  npcPose?: string;
+  playerPose?: string;
+  dialogue: [string, string][];
+  effect?: ChoiceEffect;
 };
 
 export type Scene = {
   id: string;
+  type?: "choice" | "testimony";
   title: string;
   mainIllustration: string;
   background?: string;
@@ -69,7 +90,10 @@ export type Scene = {
   props?: PropPlacement[];
   dialogue: DialogueLine[];
   choices?: Choice[];
+  testimony?: TestimonyStatement[];
+  success?: TestimonySuccess;
   lawPoint?: LawPoint;
+  lawKey?: string;
   nextScene?: string;
 };
 
@@ -80,6 +104,9 @@ export type ChoiceRecord = {
   label: string;
   summary: string;
   rationale?: string;
+  legalStability?: number;
+  relationship?: number;
+  storeTrust?: number;
 };
 
 export type GameState = {
@@ -98,6 +125,28 @@ export type GameState = {
   textScale: number;
   quickMode: boolean;
   muted: boolean;
+
+  // Testimony and popup modal states
+  currentTestimonyIdx: number;
+  testimonyShowingSuccess: boolean;
+  successDialogueIdx: number;
+  unlockedLaws: string[];
+  isReasoningModalOpen: boolean;
+  reasoningMode: "choice" | "objection" | null;
+  reasoningChoiceId: string | null;
+  isRecoveryModalOpen: boolean;
+  recoveryLawId: string | null;
+  recoveryFeedback: string | null;
+  recoveryCharClass: string | null;
+  objectionActive: boolean;
+
+  // Feedback modal states
+  isFeedbackModalOpen: boolean;
+  feedbackTitle: string;
+  feedbackBody: string;
+  feedbackLawDelta: number;
+  feedbackRelationDelta: number;
+  feedbackTrustDelta: number;
 };
 
 export type Ending = {
@@ -109,3 +158,4 @@ export type Ending = {
   body: string;
   diagnosis: string[];
 };
+

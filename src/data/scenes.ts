@@ -12,8 +12,8 @@ export const scenes: Scene[] = [
     dialogue: [
       { speaker: "나레이션", text: "비가 그친 새벽, 편의점 간판은 아직 켜져 있었다.", dim: true, illustration: "33_BG_ConvenienceStore_ExteriorNight.png" },
       { speaker: "나레이션", text: "자동문 옆에는 본사 평가 안내문이 붙어 있었다." },
-      { speaker: "안내문", text: "이번 달 개선 없을 시 계약 재검토", tone: "strong", illustration: "61_BG_StoreExterior_ClosingCrisis.png" },
-      { speaker: "지후", text: "오늘부터 여기서 일한다.", focus: "01_Jihu_Neutral.png" },
+      { speaker: "안내문", text: "이번 달 개선 없을 시 계약 재검토", tone: "strong", illustration: "61_BG_StoreExterior_ClosingCrisis.png", zoom: "notice" },
+      { speaker: "지후", text: "오늘부터 여기서 일한다.", focus: "01_Jihu_Neutral.png", illustration: "33_BG_ConvenienceStore_ExteriorNight.png" },
       { speaker: "지후", text: "그냥 알바라고 생각했는데... 생각보다 무거운 문을 여는 것 같다.", focus: "03_Jihu_Worried.png" },
       { speaker: "나레이션", text: "이곳에서 지후는 배우게 된다." },
       { speaker: "나레이션", text: "법은 시험지 속 문장이 아니라, 사람과 사람이 부딪히는 순간에 필요한 선이라는 것을." },

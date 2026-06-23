@@ -36,6 +36,7 @@ export type DialogueLine = {
   when?: Partial<Flags>;
   illustration?: string;
   background?: string;
+  zoom?: "notice" | "center" | "left" | "right" | boolean;
 };
 
 export type ChoiceEffect = Partial<{

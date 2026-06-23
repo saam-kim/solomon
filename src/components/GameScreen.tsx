@@ -94,7 +94,11 @@ function getActiveAssets(scene: Scene, state: GameState, currentLine: DialogueLi
   return { illustration, background };
 }
 
-export function GameScreen() {
+type GameScreenProps = {
+  onBackToTitle?: () => void;
+};
+
+export function GameScreen({ onBackToTitle }: GameScreenProps) {
   const game = useGameState();
   const { state, scene, currentLine, canShowChoices, choices } = game;
 
@@ -266,6 +270,12 @@ export function GameScreen() {
   const showNavAndHint = isTestimonyScene && !state.testimonyShowingSuccess;
 
   const { illustration: activeIllustration, background: activeBackground } = getActiveAssets(scene, state, currentLine);
+  
+  const zoomClass = currentLine?.zoom 
+    ? typeof currentLine.zoom === "string" 
+      ? `zoom-${currentLine.zoom}` 
+      : "zoom-center" 
+    : "";
 
   return (
     <main className="game-shell">
@@ -275,6 +285,12 @@ export function GameScreen() {
           <h1>{scene.title}</h1>
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {onBackToTitle && (
+            <button className="icon-button labeled" onClick={onBackToTitle}>
+              <ChevronLeft size={18} />
+              <span>타이틀로</span>
+            </button>
+          )}
           <button className="icon-button labeled" onClick={() => setIsLawbookOpen(true)}>
             <Scale size={18} />
             <span>법전 도감</span>
@@ -287,12 +303,12 @@ export function GameScreen() {
         {/* EVENT ILLUSTRATION */}
         {activeIllustration && (
           <div 
-            className={`event-cg-layer ${activeIllustration ? "active" : ""}`}
+            className={`event-cg-layer ${activeIllustration ? "active" : ""} ${zoomClass}`}
             style={{ backgroundImage: `url('${assetUrl(activeIllustration)}')` }}
           />
         )}
  
-        <BackgroundLayer key={scene.id} background={activeBackground} mainIllustration={activeIllustration} dim={currentLine?.dim} />
+        <BackgroundLayer key={scene.id} background={activeBackground} mainIllustration={activeIllustration} dim={currentLine?.dim} zoomClass={zoomClass} />
         <CharacterLayer
           characters={scene.characters}
           line={currentLine}

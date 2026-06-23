@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Scale, ChevronLeft, ChevronRight, Lightbulb, AlertTriangle, RefreshCw } from "lucide-react";
 import { lawPoints } from "../data/lawPoints";
+import { scenes } from "../data/scenes";
 import { useGameState, validateReasoningText } from "../hooks/useGameState";
 import { assetUrl } from "../utils/assetMap";
 import { BackgroundLayer } from "./BackgroundLayer";

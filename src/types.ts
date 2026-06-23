@@ -95,6 +95,7 @@ export type Scene = {
   lawPoint?: LawPoint;
   lawKey?: string;
   nextScene?: string;
+  spriteClass?: string;
 };
 
 export type ChoiceRecord = {

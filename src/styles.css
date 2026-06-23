@@ -316,7 +316,7 @@ p {
   font-weight: 900;
   text-align: center;
   overflow-wrap: anywhere;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
 }
 
 .dialogue-text {
@@ -841,7 +841,7 @@ p {
   position: absolute;
   top: 86px;
   left: clamp(12px, 3vw, 36px);
-  z-index: 10;
+  z-index: 40;
   background: rgba(255, 255, 255, 0.92);
   padding: 10px 14px;
   border-radius: 8px;

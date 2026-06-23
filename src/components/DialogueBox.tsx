@@ -32,7 +32,7 @@ export function DialogueBox({
   return (
     <button className={`dialogue-box ${line.tone ?? "normal"} ${quickMode ? "quick" : ""}`} onClick={onAdvance}>
       <span className="speaker-tag">{line.speaker}</span>
-      <span className="dialogue-text" style={{ fontSize: `${textScale * 1.3}rem` }}>
+      <span className="dialogue-text" style={{ fontSize: `${textScale * 1.55}rem` }}>
         {prefix}{line.text}
       </span>
       <span className="advance-hint">{isTestimony ? "클릭 / Space (이동: ←, →)" : "클릭 / Space"}</span>

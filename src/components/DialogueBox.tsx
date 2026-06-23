@@ -35,7 +35,7 @@ export function DialogueBox({
       <span className="dialogue-text" style={{ fontSize: `${textScale}rem` }}>
         {prefix}{line.text}
       </span>
-      <span className="advance-hint">{isTestimony ? "" : "클릭 / Space"}</span>
+      <span className="advance-hint">{isTestimony ? "클릭 / Space (이동: ←, →)" : "클릭 / Space"}</span>
     </button>
   );
 }

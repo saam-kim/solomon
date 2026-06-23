@@ -90,26 +90,109 @@ export function GameScreen() {
     }
   }, [state.isReasoningModalOpen]);
 
-  // Keyboard shortcut Space key mapping
+  // Keyboard shortcut mapping
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "Space") {
-        event.preventDefault();
-        // Advance only in normal dialogue states
-        if (
-          !canShowChoices &&
-          !state.isReasoningModalOpen &&
-          !state.isFeedbackModalOpen &&
-          !state.isRecoveryModalOpen &&
-          (scene.type !== "testimony" || state.testimonyShowingSuccess)
-        ) {
+      // 1. Esc to close modals
+      if (event.key === "Escape") {
+        if (state.isReasoningModalOpen) {
+          game.closeReasoningModal();
+        } else if (isLawbookOpen) {
+          setIsLawbookOpen(false);
+        }
+        return;
+      }
+
+      // 2. If the reasoning modal is open, we do NOT handle gameplay keys (except Ctrl+Enter/Cmd+Enter)
+      if (state.isReasoningModalOpen) {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+          event.preventDefault();
+          handleReasoningSubmit();
+        }
+        return;
+      }
+
+      // 3. If Lawbook modal is open, we do not handle gameplay keys
+      if (isLawbookOpen) {
+        return;
+      }
+
+      // 4. Feedback Modal: Space or Enter to close
+      if (state.isFeedbackModalOpen) {
+        if (event.code === "Space" || event.key === "Enter") {
+          event.preventDefault();
+          game.closeFeedbackModal();
+        }
+        return;
+      }
+
+      // 5. Recovery Modal: Space or Enter to retry
+      if (state.isRecoveryModalOpen) {
+        if (event.code === "Space" || event.key === "Enter") {
+          event.preventDefault();
+          game.retryScene();
+        }
+        return;
+      }
+
+      // 6. Choice state: Number keys 1, 2, 3... to select choices
+      if (canShowChoices) {
+        const choiceIdx = parseInt(event.key, 10) - 1;
+        if (choiceIdx >= 0 && choiceIdx < choices.length) {
+          event.preventDefault();
+          const selectedChoice = choices[choiceIdx];
+          game.openReasoningModal("choice", selectedChoice.id);
+        }
+        return;
+      }
+
+      // 7. Normal dialogue & Testimony state:
+      const isTestimonyMode = scene.type === "testimony" && !state.testimonyShowingSuccess;
+
+      if (isTestimonyMode) {
+        // ArrowRight / Space / Enter / D to advance statement
+        if (event.code === "Space" || event.key === "Enter" || event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+          event.preventDefault();
+          game.nextStatement();
+        }
+        // ArrowLeft / A to go to previous statement
+        else if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+          event.preventDefault();
+          game.prevStatement();
+        }
+        // h / H to show hint
+        else if (event.key.toLowerCase() === "h") {
+          event.preventDefault();
+          handleShowHint();
+        }
+        // o / O or l / L to open lawbook (objection)
+        else if (event.key.toLowerCase() === "o" || event.key.toLowerCase() === "l") {
+          event.preventDefault();
+          handleOpenObjectionLawbook();
+        }
+      } else {
+        // Normal dialogue: Space or Enter to advance
+        if (event.code === "Space" || event.key === "Enter") {
+          event.preventDefault();
           game.advance();
         }
       }
     };
+
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [canShowChoices, scene.type, state.testimonyShowingSuccess, state.isReasoningModalOpen, state.isFeedbackModalOpen, state.isRecoveryModalOpen, game]);
+  }, [
+    canShowChoices,
+    choices,
+    scene.type,
+    state.testimonyShowingSuccess,
+    state.isReasoningModalOpen,
+    state.isFeedbackModalOpen,
+    state.isRecoveryModalOpen,
+    isLawbookOpen,
+    reasoningText,
+    game,
+  ]);
 
   if (state.currentSceneId === "ending") {
     return <EndingScreen state={state} onReset={game.reset} onReflectionChange={game.setReflection} />;
@@ -164,8 +247,14 @@ export function GameScreen() {
           />
         )}
 
-        <BackgroundLayer background={scene.background} mainIllustration={scene.mainIllustration} dim={currentLine?.dim} />
-        <CharacterLayer characters={scene.characters} line={currentLine} mainIllustration={scene.mainIllustration} />
+        <BackgroundLayer key={scene.id} background={scene.background} mainIllustration={scene.mainIllustration} dim={currentLine?.dim} />
+        <CharacterLayer
+          characters={scene.characters}
+          line={currentLine}
+          mainIllustration={scene.mainIllustration}
+          testimonyShowingSuccess={state.testimonyShowingSuccess}
+          success={scene.success}
+        />
         <PropLayer props={scene.props} line={currentLine} />
 
         {/* STATUS HUD */}

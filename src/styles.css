@@ -113,6 +113,16 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: bg-fade-in 450ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes bg-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .background-image.secondary {
@@ -138,12 +148,12 @@ p {
   max-width: 34vw;
   object-fit: contain;
   filter: drop-shadow(0 22px 24px rgba(47, 61, 75, 0.26));
-  opacity: 0.62;
-  transform: translateY(12px) scale(0.98);
+  opacity: 0.5;
+  transform: translateY(14px) scale(0.96);
   transition:
-    opacity 220ms ease,
-    transform 220ms ease,
-    filter 220ms ease;
+    opacity 300ms ease,
+    transform 300ms ease,
+    filter 300ms ease;
 }
 
 .character-sprite.active {
@@ -152,17 +162,27 @@ p {
   filter: drop-shadow(0 24px 28px rgba(47, 61, 75, 0.32));
 }
 
+.character-sprite.inactive {
+  opacity: 0.45;
+  filter: brightness(0.7) contrast(0.9) grayscale(0.1) drop-shadow(0 14px 18px rgba(47, 61, 75, 0.25));
+  transform: translateY(14px) scale(0.96);
+}
+
 .character-sprite.left {
   left: clamp(6px, 6vw, 92px);
 }
 
 .character-sprite.center {
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(14px) scale(0.96);
 }
 
 .character-sprite.center.active {
   transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.character-sprite.center.inactive {
+  transform: translateX(-50%) translateY(14px) scale(0.96);
 }
 
 .character-sprite.right {
@@ -237,6 +257,18 @@ p {
   box-shadow: 0 12px 30px rgba(45, 86, 101, 0.18);
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.dialogue-box:hover {
+  border-color: rgba(34, 132, 142, 0.45);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 14px 34px rgba(45, 86, 101, 0.22);
+}
+
+.dialogue-box:active {
+  transform: scale(0.995) translateY(1px);
+  box-shadow: 0 8px 24px rgba(45, 86, 101, 0.15);
 }
 
 .dialogue-box.strong {

@@ -140,6 +140,17 @@ export function useGameState() {
         }
       }
 
+      // If displaying testimony cross-examination statements
+      if (activeScene.type === "testimony" && !current.testimonyShowingSuccess) {
+        const testimonies = activeScene.testimony ?? [];
+        if (testimonies.length > 0) {
+          return {
+            ...current,
+            currentTestimonyIdx: (current.currentTestimonyIdx + 1) % testimonies.length
+          };
+        }
+      }
+
       // If there are results queued from a choice
       if (current.resultQueue.length > 1) {
         return { ...current, resultQueue: current.resultQueue.slice(1) };

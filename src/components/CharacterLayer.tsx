@@ -5,22 +5,44 @@ type Props = {
   characters?: CharacterPlacement[];
   line: DialogueLine | null;
   mainIllustration: string;
+  testimonyShowingSuccess?: boolean;
+  success?: {
+    npcPose?: string;
+    playerPose?: string;
+  };
 };
 
-export function CharacterLayer({ characters = [], line, mainIllustration }: Props) {
+export function CharacterLayer({
+  characters = [],
+  line,
+  mainIllustration,
+  testimonyShowingSuccess,
+  success,
+}: Props) {
   const isEventCg = mainIllustration.includes("_CG_") || mainIllustration.startsWith("CG_");
-  const activeCharacters = characters.filter((character) => character.activeFor?.includes(line?.speaker ?? ""));
 
-  if (isEventCg || activeCharacters.length === 0) return null;
+  if (isEventCg || characters.length === 0) return null;
 
   return (
     <div className="character-layer" aria-hidden="true">
-      {activeCharacters.map((character) => {
-        const asset = line?.focus ?? character.asset;
+      {characters.map((character) => {
+        const isSpeaking = character.activeFor?.includes(line?.speaker ?? "") ?? false;
+        
+        let asset = character.asset;
+        if (isSpeaking && line?.focus) {
+          asset = line.focus;
+        } else if (testimonyShowingSuccess && success) {
+          if (character.side === "left" && success.playerPose) {
+            asset = success.playerPose;
+          } else if (character.side === "right" && success.npcPose) {
+            asset = success.npcPose;
+          }
+        }
+
         return (
           <img
             key={`${character.side}-${character.asset}`}
-            className={`character-sprite ${character.side} active`}
+            className={`character-sprite ${character.side} ${isSpeaking ? "active" : "inactive"}`}
             src={assetUrl(asset)}
             alt=""
           />

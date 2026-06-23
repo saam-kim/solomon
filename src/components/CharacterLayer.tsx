@@ -19,7 +19,7 @@ export function CharacterLayer({
   testimonyShowingSuccess,
   success,
 }: Props) {
-  const isEventCg = mainIllustration.includes("_CG_") || mainIllustration.startsWith("CG_");
+  const isEventCg = mainIllustration ? (mainIllustration.includes("_CG_") || mainIllustration.startsWith("CG_")) : false;
 
   if (isEventCg || characters.length === 0) return null;
 

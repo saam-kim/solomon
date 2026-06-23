@@ -4,6 +4,8 @@ import { lawPoints } from "../data/lawPoints";
 import { scenes } from "../data/scenes";
 import { useGameState, validateReasoningText } from "../hooks/useGameState";
 import { assetUrl } from "../utils/assetMap";
+import { visibleLines } from "../utils/scoring";
+import type { Scene, GameState, DialogueLine } from "../types";
 import { BackgroundLayer } from "./BackgroundLayer";
 import { CharacterLayer } from "./CharacterLayer";
 import { ChoicePanel } from "./ChoicePanel";
@@ -51,6 +53,46 @@ const SCENE_TEACHING_GUIDES: Record<string, { tip: string; hint?: string }> = {
     hint: "점장님의 두 번째 진술('손님 사고 처리비 10만 원을 월급에서 미리 공제하고 보냈다')에 주목하십시오. 근로기준법 제43조에 따라 임금은 전액을 통화로 지급해야 하며 일방적 공제는 위법입니다."
   }
 };
+
+function getActiveAssets(scene: Scene, state: GameState, currentLine: DialogueLine | null) {
+  let illustration = scene.mainIllustration;
+  let background = scene.background;
+
+  // 1. If we are in normal dialogue
+  if (scene.type !== "testimony" && state.resultQueue.length === 0 && !state.testimonyShowingSuccess) {
+    const lines = visibleLines(scene, state);
+    for (let i = 0; i <= state.lineIndex; i++) {
+      const line = lines[i];
+      if (line?.illustration) illustration = line.illustration;
+      if (line?.background) background = line.background;
+    }
+  }
+  // 2. If we are in testimony cross-examination
+  else if (scene.type === "testimony" && !state.testimonyShowingSuccess) {
+    const testimonies = scene.testimony ?? [];
+    for (let i = 0; i <= state.currentTestimonyIdx; i++) {
+      const stmt = testimonies[i];
+      if (stmt?.illustration) illustration = stmt.illustration;
+      if (stmt?.background) background = stmt.background;
+    }
+  }
+  // 3. If we are in testimony success dialogue
+  else if (state.testimonyShowingSuccess) {
+    const successLines = scene.success?.dialogue ?? [];
+    for (let i = 0; i <= state.successDialogueIdx; i++) {
+      const line = successLines[i];
+      if (line?.illustration) illustration = line.illustration;
+      if (line?.background) background = line.background;
+    }
+  }
+  // 4. If we are in choice result queue
+  else if (state.resultQueue.length > 0) {
+    if (currentLine?.illustration) illustration = currentLine.illustration;
+    if (currentLine?.background) background = currentLine.background;
+  }
+
+  return { illustration, background };
+}
 
 export function GameScreen() {
   const game = useGameState();
@@ -223,6 +265,8 @@ export function GameScreen() {
   const isTestimonyScene = scene.type === "testimony";
   const showNavAndHint = isTestimonyScene && !state.testimonyShowingSuccess;
 
+  const { illustration: activeIllustration, background: activeBackground } = getActiveAssets(scene, state, currentLine);
+
   return (
     <main className="game-shell">
       <header className="top-bar">
@@ -238,21 +282,21 @@ export function GameScreen() {
           <SaveLoadPanel onSave={game.save} onLoad={game.load} onReset={game.reset} />
         </div>
       </header>
-
+ 
       <section className={`stage ${state.objectionActive ? "screen-shake flash-red" : ""}`} aria-label="게임 장면" id="game-stage">
         {/* EVENT ILLUSTRATION */}
-        {scene.mainIllustration && (
+        {activeIllustration && (
           <div 
-            className={`event-cg-layer ${scene.mainIllustration ? "active" : ""}`}
-            style={{ backgroundImage: `url('${assetUrl(scene.mainIllustration)}')` }}
+            className={`event-cg-layer ${activeIllustration ? "active" : ""}`}
+            style={{ backgroundImage: `url('${assetUrl(activeIllustration)}')` }}
           />
         )}
-
-        <BackgroundLayer key={scene.id} background={scene.background} mainIllustration={scene.mainIllustration} dim={currentLine?.dim} />
+ 
+        <BackgroundLayer key={scene.id} background={activeBackground} mainIllustration={activeIllustration} dim={currentLine?.dim} />
         <CharacterLayer
           characters={scene.characters}
           line={currentLine}
-          mainIllustration={scene.mainIllustration}
+          mainIllustration={activeIllustration}
           testimonyShowingSuccess={state.testimonyShowingSuccess}
           success={scene.success}
         />

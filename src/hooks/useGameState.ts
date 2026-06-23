@@ -67,20 +67,15 @@ export function useGameState() {
     if (scene.type === "testimony") {
       if (state.testimonyShowingSuccess) {
         const successLines = scene.success?.dialogue ?? [];
-        const currentSuccessLine = successLines[state.successDialogueIdx];
-        if (currentSuccessLine) {
-          return {
-            speaker: currentSuccessLine[0],
-            text: currentSuccessLine[1],
-            focus: currentSuccessLine[0] === "지후" ? "04_Jihu_Determined.png" : undefined
-          };
-        }
+        return successLines[state.successDialogueIdx] ?? null;
       } else {
         const stmt = scene.testimony?.[state.currentTestimonyIdx];
         if (stmt) {
           return {
             speaker: stmt.speaker,
-            text: stmt.text
+            text: stmt.text,
+            illustration: stmt.illustration,
+            background: stmt.background,
           };
         }
       }

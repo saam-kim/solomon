@@ -34,6 +34,8 @@ export type DialogueLine = {
   propFocus?: string | string[];
   dim?: boolean;
   when?: Partial<Flags>;
+  illustration?: string;
+  background?: string;
 };
 
 export type ChoiceEffect = Partial<{
@@ -67,6 +69,8 @@ export type TestimonyStatement = {
   speaker: string;
   isContradiction?: boolean;
   correctLaw?: string;
+  illustration?: string;
+  background?: string;
 };
 
 export type TestimonySuccess = {
@@ -76,7 +80,7 @@ export type TestimonySuccess = {
   profit: number;
   npcPose?: string;
   playerPose?: string;
-  dialogue: [string, string][];
+  dialogue: DialogueLine[];
   effect?: ChoiceEffect;
 };
 

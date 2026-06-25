@@ -1,0 +1,38 @@
+[
+  {
+    "number": 82,
+    "asset_name": "UI_HeadOfficeNotice",
+    "file": "82_UI_HeadOfficeNotice.png",
+    "source_file": "본사_평가_공지사항.png"
+  },
+  {
+    "number": 83,
+    "asset_name": "UI_OneStarReview_BreadFavoritism",
+    "file": "83_UI_OneStarReview_BreadFavoritism.png",
+    "source_file": "고객_리뷰_페이지_모형.png"
+  },
+  {
+    "number": 84,
+    "asset_name": "UI_ParentCancellationRequest",
+    "file": "84_UI_ParentCancellationRequest.png",
+    "source_file": "엄마와의_게임기_구매_취소_대화.png"
+  },
+  {
+    "number": 85,
+    "asset_name": "UI_PayStatement_AccidentDeduction",
+    "file": "85_UI_PayStatement_AccidentDeduction.png",
+    "source_file": "급여_입금_내역과_공제_사항.png"
+  },
+  {
+    "number": 86,
+    "asset_name": "CG_LastBread_CustomerConflict",
+    "file": "86_CG_LastBread_CustomerConflict.png",
+    "source_file": "편의점에서의_특별한_순간.png"
+  },
+  {
+    "number": 87,
+    "asset_name": "CG_Youth_PhoneID_NoPhysicalID",
+    "file": "87_CG_Youth_PhoneID_NoPhysicalID.png",
+    "source_file": "편의점에서의_id_확인_상황.png"
+  }
+]

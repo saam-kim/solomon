@@ -1,51 +1,23 @@
-import type { CharacterPlacement, DialogueLine } from "../types";
-import { assetUrl } from "../utils/assetMap";
+import { characters } from "../data/characters";
+import type { CharacterPlacement } from "../types/game";
+import { getCharacterAsset } from "../utils/assetMap";
 
-type Props = {
-  characters?: CharacterPlacement[];
-  line: DialogueLine | null;
-  mainIllustration: string;
-  testimonyShowingSuccess?: boolean;
-  success?: {
-    npcPose?: string;
-    playerPose?: string;
-  };
-};
-
-export function CharacterLayer({
-  characters = [],
-  line,
-  mainIllustration,
-  testimonyShowingSuccess,
-  success,
-}: Props) {
-  const isEventCg = mainIllustration ? (mainIllustration.includes("_CG_") || mainIllustration.startsWith("CG_")) : false;
-
-  if (isEventCg || characters.length === 0) return null;
-
+export function CharacterLayer({ placements = [] }: { placements?: CharacterPlacement[] }) {
   return (
-    <div className="character-layer" aria-hidden="true">
-      {characters.map((character) => {
-        const isSpeaking = character.activeFor?.includes(line?.speaker ?? "") ?? false;
-        
-        let asset = character.asset;
-        if (isSpeaking && line?.focus) {
-          asset = line.focus;
-        } else if (testimonyShowingSuccess && success) {
-          if (character.side === "left" && success.playerPose) {
-            asset = success.playerPose;
-          } else if (character.side === "right" && success.npcPose) {
-            asset = success.npcPose;
-          }
-        }
-
+    <div className="character-layer" aria-label="등장인물">
+      {placements.filter((item) => item.visible !== false).map((item) => {
+        const source = getCharacterAsset(item.characterId, item.emotion);
         return (
-          <img
-            key={`${character.side}-${character.asset}`}
-            className={`character-sprite ${character.side} ${isSpeaking ? "active" : "inactive"}`}
-            src={assetUrl(asset)}
-            alt=""
-          />
+          <div className={`character-slot ${item.position}`} key={`${item.characterId}-${item.position}`}>
+            {source ? (
+              <img src={source} alt={`${characters[item.characterId].name} ${item.emotion ?? "neutral"}`} />
+            ) : (
+              <div className="asset-placeholder">
+                <strong>{characters[item.characterId].name}</strong>
+                <span>PNG 준비 중 · {item.emotion ?? "neutral"}</span>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>

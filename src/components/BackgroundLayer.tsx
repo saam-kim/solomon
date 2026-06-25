@@ -1,19 +1,15 @@
-import { assetUrl } from "../utils/assetMap";
+import { getBackground, getCg } from "../utils/assetMap";
 
-type Props = {
-  background?: string;
-  mainIllustration: string;
-  dim?: boolean;
-  zoomClass?: string;
-};
+type Props = { background?: string; cg?: string };
 
-export function BackgroundLayer({ background, mainIllustration, dim, zoomClass = "" }: Props) {
-  const isEventCg = mainIllustration ? (mainIllustration.includes("_CG_") || mainIllustration.startsWith("CG_")) : false;
+export function BackgroundLayer({ background, cg }: Props) {
+  const backgroundSource = background ? getBackground(background) : undefined;
+  const cgSource = cg ? getCg(cg) : undefined;
 
   return (
-    <div className={`background-layer ${dim ? "is-dimmed" : ""}`}>
-      {background && !isEventCg && <img className={`background-image secondary ${zoomClass}`} src={assetUrl(background)} alt="" />}
-      <img className={`background-image primary ${zoomClass}`} src={assetUrl(mainIllustration)} alt="" />
+    <div className="background-layer">
+      {backgroundSource ? <img src={backgroundSource} alt="장면 배경" /> : <span>배경 PNG 준비 중 · {background ?? "미지정"}</span>}
+      {cg && (cgSource ? <img className="cg-image" src={cgSource} alt="이벤트 장면" /> : <span className="cg-placeholder">CG PNG 준비 중 · {cg}</span>)}
     </div>
   );
 }

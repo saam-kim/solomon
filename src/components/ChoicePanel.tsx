@@ -1,31 +1,44 @@
-import type { Choice } from "../types";
+import { useEffect, useState } from "react";
+import type { Choice } from "../types/game";
 
 type Props = {
   choices: Choice[];
-  reflectionPrompt: string;
-  reflectionValue: string;
-  onReflectionChange: (value: string) => void;
   onChoose: (choice: Choice) => void;
+  delayMs?: number;
 };
 
-export function ChoicePanel({ choices, reflectionPrompt, reflectionValue, onReflectionChange, onChoose }: Props) {
+export function ChoicePanel({ choices, onChoose, delayMs = 500 }: Props) {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(timer);
+  }, [delayMs]);
+
+  useEffect(() => {
+    if (!ready) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const numberIndex = event.code.startsWith("Digit") || event.code.startsWith("Numpad")
+        ? Number(event.code.at(-1)) - 1
+        : -1;
+      const choiceIndex = event.code === "Enter" ? 0 : numberIndex;
+      if (choiceIndex < 0 || choiceIndex >= choices.length) return;
+      event.preventDefault();
+      onChoose(choices[choiceIndex]);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [choices, onChoose, ready]);
+
   return (
-    <div className="choice-panel">
-      <section className="decision-note" aria-label="선택 이유 기록">
-        <p>{reflectionPrompt}</p>
-        <textarea
-          value={reflectionValue}
-          onChange={(event) => onReflectionChange(event.target.value)}
-          placeholder="선택 전에 이유를 짧게 적어보세요."
-          rows={2}
-        />
-      </section>
-      {choices.map((choice, index) => (
-        <button key={choice.id} className="choice-button" onClick={() => onChoose(choice)}>
-          <span className="choice-index">{index + 1}</span>
+    <section className={`choice-panel${ready ? " ready" : " waiting"}`} aria-label="선택지" aria-busy={!ready}>
+      <p className="choice-prompt">{ready ? "지후는 어떻게 말할까?" : "잠시, 숨을 고른다…"}</p>
+      {ready && choices.map((choice, index) => (
+        <button key={choice.id} type="button" onClick={(event) => { event.stopPropagation(); onChoose(choice); }}>
+          <span className="choice-number">{String(index + 1).padStart(2, "0")}</span>
           <span>{choice.label}</span>
         </button>
       ))}
-    </div>
+    </section>
   );
 }

@@ -1,61 +1,41 @@
-import { FastForward, List, Volume2, VolumeX } from "lucide-react";
-import type { DialogueLine, GameState, Scene } from "../types";
+import type { GameState } from "../types/game";
 
-type Props = {
-  state: GameState;
-  scene: Scene;
-  lines: DialogueLine[];
-  onTextScale: (value: number) => void;
-  onQuickMode: () => void;
-  onMuted: () => void;
-};
+const scoreNames = {
+  legalStability: "법적 안정성",
+  relationship: "관계",
+  storeTrust: "매장 신뢰",
+  jihuStress: "지후 스트레스",
+  explanationSkill: "설명 능력",
+} as const;
 
-export function StatusPanel({ state, scene, lines, onTextScale, onQuickMode, onMuted }: Props) {
-  const progress = Math.min(100, Math.round(((state.visitedScenes.length - 1) / 11) * 100));
-  const recentLines = lines.slice(Math.max(0, state.lineIndex - 4), state.lineIndex + 1);
+export function StatusPanel({ state, onClose }: { state: GameState; onClose: () => void }) {
+  const describe = (value: number) => {
+    if (value >= 3) return "단단해지는 중";
+    if (value > 0) return "조금씩 쌓이는 중";
+    if (value <= -3) return "주의가 필요함";
+    if (value < 0) return "흔들리는 중";
+    return "아직 정해지지 않음";
+  };
 
   return (
-    <aside className="status-panel">
-      <div>
-        <span className="panel-label">진행률</span>
-        <div className="progress-track" aria-label={`진행률 ${progress}%`}>
-          <span style={{ width: `${progress}%` }} />
-        </div>
+    <aside className="side-panel" aria-label="현재 상태">
+      <div className="panel-heading"><h2>현재의 지후</h2><button type="button" onClick={onClose} aria-label="닫기">×</button></div>
+      <div className="score-list">
+        {(Object.keys(scoreNames) as (keyof typeof scoreNames)[]).map((key) => (
+          <div key={key}><span>{scoreNames[key]}</span><strong>{describe(state[key])}</strong></div>
+        ))}
       </div>
-
-      <div className="control-row">
-        <label>
-          글자
-          <input
-            type="range"
-            min="0.92"
-            max="1.25"
-            step="0.01"
-            value={state.textScale}
-            onChange={(event) => onTextScale(Number(event.target.value))}
-          />
-        </label>
-        <button className={`icon-button ${state.quickMode ? "selected" : ""}`} onClick={onQuickMode} title="빠른 진행">
-          <FastForward size={18} />
-        </button>
-        <button className="icon-button" onClick={onMuted} title={state.muted ? "음소거 해제" : "음소거"}>
-          {state.muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
+      <h3>관계</h3>
+      <div className="score-list compact">
+        <div><span>점장 신뢰</span><strong>{describe(state.affinity.ownerTrust)}</strong></div>
+        <div><span>수진 신뢰</span><strong>{describe(state.affinity.sujinTrust)}</strong></div>
+        <div><span>손님 신뢰</span><strong>{describe(state.affinity.customerTrust)}</strong></div>
+        <div><span>자기 존중</span><strong>{describe(state.affinity.jihuSelfRespect)}</strong></div>
       </div>
-
-      <details className="log-view">
-        <summary>
-          <List size={16} />
-          다시보기 로그
-        </summary>
-        <div className="log-lines">
-          {recentLines.map((line, index) => (
-            <p key={`${scene.id}-${index}`}>
-              <b>{line.speaker}</b> {line.text}
-            </p>
-          ))}
-        </div>
-      </details>
+      <h3>선택 기록</h3>
+      {state.choiceHistory.length ? state.choiceHistory.map((item) => (
+        <div className="history-item" key={`${item.sceneId}-${item.choiceId}`}><strong>{item.choiceLabel}</strong><p>{item.resultText}</p></div>
+      )) : <p className="muted">아직 선택 기록이 없습니다.</p>}
     </aside>
   );
 }

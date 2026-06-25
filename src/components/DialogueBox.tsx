@@ -1,42 +1,21 @@
-import type { DialogueLine } from "../types";
+import { characters } from "../data/characters";
+import type { DialogueLine } from "../types/game";
 
 type Props = {
-  line: DialogueLine | null;
-  onAdvance: () => void;
-  textScale: number;
-  quickMode: boolean;
-  isTestimony?: boolean;
-  currentTestimonyIdx?: number;
-  testimonyLength?: number;
+  line?: DialogueLine;
+  canAdvance: boolean;
+  complete: boolean;
 };
 
-export function DialogueBox({
-  line,
-  onAdvance,
-  textScale,
-  quickMode,
-  isTestimony = false,
-  currentTestimonyIdx = 0,
-  testimonyLength = 0,
-}: Props) {
-  if (!line) {
-    return (
-      <button className="dialogue-box waiting" onClick={onAdvance}>
-        계속
-      </button>
-    );
-  }
-
-  const prefix = isTestimony ? `[진술 ${currentTestimonyIdx + 1}/${testimonyLength}] ` : "";
+export function DialogueBox({ line, canAdvance, complete }: Props) {
+  if (!line) return null;
 
   return (
-    <button className={`dialogue-box ${line.tone ?? "normal"} ${quickMode ? "quick" : ""}`} onClick={onAdvance}>
-      <span className="speaker-tag">{line.speaker}</span>
-      <span className="dialogue-text" style={{ fontSize: `${textScale * 1.55}rem` }}>
-        {prefix}{line.text}
-      </span>
-      <span className="advance-hint">{isTestimony ? "클릭 / Space (이동: ←, →)" : "클릭 / Space"}</span>
-    </button>
+    <section className={`dialogue-box effect-${line.effect ?? "none"}`} aria-live="polite">
+      <div className="nameplate">{characters[line.speaker].name}</div>
+      <p>{line.text}</p>
+      {canAdvance && <span className="advance-hint">클릭 / Space <span aria-hidden="true">›</span></span>}
+      {complete && <span className="advance-hint complete">DEMO COMPLETE</span>}
+    </section>
   );
 }
-

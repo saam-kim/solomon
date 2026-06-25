@@ -1,475 +1,247 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { scenes, sceneById } from "../data/scenes";
-import type { Choice, GameState, TestimonyStatement } from "../types";
-import { applyChoiceEffect, initialState, visibleChoices, visibleLines, clampScore } from "../utils/scoring";
-import { lawPoints } from "../data/lawPoints";
+import { useCallback, useMemo, useState } from "react";
+import { getScene } from "../utils/sceneResolver";
+import { applyChoiceEffects, applyRecallEffects } from "../utils/scoring";
+import { loadGame, saveGame } from "../utils/storage";
+import { recalls } from "../data/recalls";
+import { matchesConditions } from "../utils/conditions";
+import { selectEndingId } from "../utils/endingSelector";
+import type { Choice, ChoiceOutcome, DialogueLine, GameState, Recall } from "../types/game";
 
-const STORAGE_KEY = "convenience-solomon-save";
+export const initialGameState: GameState = {
+  legalStability: 0,
+  relationship: 0,
+  storeTrust: 0,
+  jihuStress: 0,
+  explanationSkill: 0,
+  affinity: { ownerTrust: 0, sujinTrust: 0, customerTrust: 0, jihuSelfRespect: 0 },
+  flags: {
+    contract_written: null,
+    fair_sale: null,
+    minor_contract_risk: null,
+    id_check_failed: null,
+    disposal_rule_broken: null,
+    spill_cleaned: null,
+    fall_accident: null,
+    insurance_procedure: null,
+    cat_care_balanced: null,
+    wage_deduction_accepted: null,
+  },
+  currentSceneId: "intro",
+  currentLineIndex: 0,
+  visitedScenes: [],
+  choiceHistory: [],
+  backlog: [],
+  unlockedLawPoints: [],
+  resolvedSceneIds: [],
+  appliedRecallIds: [],
+  selectedEndingId: null,
+};
 
-function persist(state: GameState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+const addLineToBacklog = (backlog: DialogueLine[], line: DialogueLine) => {
+  const last = backlog.at(-1);
+  return last === line ? backlog : [...backlog, line];
+};
 
-export function validateReasoningText(text: string) {
-  const trimmed = text.trim();
-  
-  // 1. Length check
-  if (trimmed.length < 10) {
-    return { valid: false, msg: "최소 10자 이상 작성해야 합니다." };
-  }
-  
-  // 2. Digit/Symbol only check (must contain Korean or English letters)
-  const hasLetters = /[a-zA-Z가-힣ㄱ-ㅎㅏ-ㅣ]/.test(trimmed);
-  if (!hasLetters) {
-    return { valid: false, msg: "의미 있는 글자로 입력해 주세요. (숫자나 기호만으로는 작성할 수 없습니다.)" };
-  }
+export const useGameState = () => {
+  const [state, setState] = useState<GameState>(initialGameState);
+  const [lastOutcome, setLastOutcome] = useState<ChoiceOutcome | null>(null);
+  const [pendingSceneId, setPendingSceneId] = useState<string | null>(null);
+  const scene = useMemo(() => getScene(state.currentSceneId, state), [state]);
+  const line = scene.dialogue[state.currentLineIndex] ?? scene.dialogue.at(-1);
+  const isAtLastLine = state.currentLineIndex >= scene.dialogue.length - 1;
+  const isPastLastLine = state.currentLineIndex >= scene.dialogue.length;
+  const sceneResolved = state.resolvedSceneIds.includes(scene.id);
+  const showChoices = isPastLastLine && Boolean(scene.choices?.length) && !sceneResolved;
+  const isDemoComplete = isPastLastLine && (!scene.choices?.length || sceneResolved) && !scene.nextSceneId;
+  const pendingRecall = useMemo(() => recalls.find((recall) =>
+    recall.triggerSceneId === state.currentSceneId
+    && !state.appliedRecallIds.includes(recall.id)
+    && matchesConditions(state, recall.conditions)), [state]);
 
-  // 3. Consecutive repeated character check (4+ identical characters)
-  const consecutiveRepeatRegex = /(.)\1{3,}/;
-  if (consecutiveRepeatRegex.test(trimmed.replace(/\s+/g, ''))) {
-    return { valid: false, msg: "동일한 문자나 자모음이 반복되었습니다. 성의 있는 답변을 입력해 주세요." };
-  }
-
-  // 4. Set of unique characters check (must have reasonable variety, e.g. set size > 2)
-  const cleanedText = trimmed.replace(/[^a-zA-Z가-힣]/g, ''); // letters only
-  const uniqueChars = new Set(cleanedText);
-  if (cleanedText.length >= 10 && uniqueChars.size <= 2) {
-    return { valid: false, msg: "구체적이고 완성된 문장으로 작성해 주세요." };
-  }
-
-  return { valid: true, msg: "" };
-}
-
-export function useGameState() {
-  const [state, setState] = useState<GameState>(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return initialState;
-    try {
-      return { ...initialState, ...JSON.parse(raw) } as GameState;
-    } catch {
-      return initialState;
-    }
-  });
-
-  useEffect(() => {
-    persist(state);
-  }, [state]);
-
-  const scene = sceneById[state.currentSceneId] ?? scenes[0];
-  const lines = useMemo(() => visibleLines(scene, state), [scene, state]);
-  const choices = useMemo(() => visibleChoices(scene, state), [scene, state]);
-  
-  // Resolve current dialogue line
-  const currentLine = useMemo(() => {
-    if (state.resultQueue.length > 0) {
-      return state.resultQueue[0];
-    }
-    if (scene.type === "testimony") {
-      if (state.testimonyShowingSuccess) {
-        const successLines = scene.success?.dialogue ?? [];
-        return successLines[state.successDialogueIdx] ?? null;
-      } else {
-        const stmt = scene.testimony?.[state.currentTestimonyIdx];
-        if (stmt) {
-          return {
-            speaker: stmt.speaker,
-            text: stmt.text,
-            illustration: stmt.illustration,
-            background: stmt.background,
-          };
-        }
-      }
-      return null;
-    }
-    return lines[state.lineIndex] ?? null;
-  }, [scene, lines, state.lineIndex, state.resultQueue, state.currentTestimonyIdx, state.testimonyShowingSuccess, state.successDialogueIdx]);
-
-  const atSceneEnd = state.resultQueue.length === 0 && state.lineIndex >= lines.length;
-  const canShowChoices = scene.type !== "testimony" && atSceneEnd && choices.length > 0;
-
-  // Automatically unlock law associated with the scene when entering
-  useEffect(() => {
-    if (scene.lawKey && !state.unlockedLaws.includes(scene.lawKey)) {
-      setState((current) => ({
-        ...current,
-        unlockedLaws: [...current.unlockedLaws, scene.lawKey!],
-      }));
-    }
-  }, [scene.lawKey, state.unlockedLaws]);
+  const moveToScene = useCallback((sceneId: string, baseState?: GameState) => {
+    setState((current) => {
+      const source = baseState ?? current;
+      return {
+        ...source,
+        currentSceneId: sceneId,
+        currentLineIndex: 0,
+        visitedScenes: source.visitedScenes.includes(sceneId)
+          ? source.visitedScenes
+          : [...source.visitedScenes, sceneId],
+      };
+    });
+  }, []);
 
   const advance = useCallback(() => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      
-      // If displaying testimony success dialogue
-      if (activeScene.type === "testimony" && current.testimonyShowingSuccess) {
-        const successLines = activeScene.success?.dialogue ?? [];
-        if (current.successDialogueIdx < successLines.length - 1) {
-          return {
-            ...current,
-            successDialogueIdx: current.successDialogueIdx + 1
-          };
-        } else {
-          // Success dialogue ended. Open feedback modal and apply final stats
-          const success = activeScene.success!;
-          const effect = success.effect ?? { legalStability: success.law, relationship: success.relation, storeTrust: success.profit };
-          
-          let nextState = {
-            ...current,
-            legalStability: clampScore(current.legalStability + (effect.legalStability ?? 0)),
-            relationship: clampScore(current.relationship + (effect.relationship ?? 0)),
-            storeTrust: clampScore(current.storeTrust + (effect.storeTrust ?? 0)),
-            jihuStress: clampScore(current.jihuStress + (effect.jihuStress ?? 0)),
-            flags: {
-              ...current.flags,
-              ...(effect.flags ?? {}),
-            },
-            isFeedbackModalOpen: true,
-            feedbackTitle: `⚖️ 결과 보고서 - ${activeScene.title}`,
-            feedbackBody: success.feedback,
-            feedbackLawDelta: effect.legalStability ?? 0,
-            feedbackRelationDelta: effect.relationship ?? 0,
-            feedbackTrustDelta: effect.storeTrust ?? 0,
-          };
-          return nextState;
-        }
-      }
-
-      // If displaying testimony cross-examination statements
-      if (activeScene.type === "testimony" && !current.testimonyShowingSuccess) {
-        const testimonies = activeScene.testimony ?? [];
-        if (testimonies.length > 0) {
-          return {
-            ...current,
-            currentTestimonyIdx: (current.currentTestimonyIdx + 1) % testimonies.length
-          };
-        }
-      }
-
-      // If there are results queued from a choice
-      if (current.resultQueue.length > 1) {
-        return { ...current, resultQueue: current.resultQueue.slice(1) };
-      }
-
-      if (current.resultQueue.length === 1) {
-        // If choice result queue ends, show the feedback modal we queued
-        return {
-          ...current,
-          resultQueue: [],
-          isFeedbackModalOpen: true,
-        };
-      }
-
-      // Normal choice-based scenes
-      const activeLines = visibleLines(activeScene, current);
-      if (current.lineIndex < activeLines.length - 1) {
-        return { ...current, lineIndex: current.lineIndex + 1 };
-      }
-
-      const activeChoices = visibleChoices(activeScene, current);
-      if (activeChoices.length > 0) {
-        return { ...current, lineIndex: activeLines.length };
-      }
-
-      // If no choices, just proceed to next scene
-      const next = activeScene.nextScene ?? "ending";
-      return {
+    if (showChoices || isDemoComplete || !line) return;
+    setLastOutcome(null);
+    if (!isAtLastLine) {
+      setState((current) => ({
         ...current,
-        currentSceneId: next,
-        visitedScenes: current.visitedScenes.includes(next) ? current.visitedScenes : [...current.visitedScenes, next],
-        lineIndex: 0,
-        resultQueue: [],
-        pendingLawPointId: null,
-      };
-    });
-  }, []);
-
-  const openReasoningModal = useCallback((mode: "choice" | "objection", choiceId: string | null) => {
-    setState((current) => ({
-      ...current,
-      isReasoningModalOpen: true,
-      reasoningMode: mode,
-      reasoningChoiceId: choiceId,
-    }));
-  }, []);
-
-  const closeReasoningModal = useCallback(() => {
-    setState((current) => ({
-      ...current,
-      isReasoningModalOpen: false,
-      reasoningMode: null,
-      reasoningChoiceId: null,
-    }));
-  }, []);
-
-  const submitReasoning = useCallback((text: string) => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      if (current.reasoningMode === "choice") {
-        // Find choice
-        const choice = visibleChoices(activeScene, current).find((c) => c.id === current.reasoningChoiceId);
-        if (!choice) return current;
-
-        const next = applyChoiceEffect(current, choice);
-        return {
-          ...next,
-          lineIndex: visibleLines(activeScene, next).length,
-          resultQueue: choice.result,
-          isReasoningModalOpen: false,
-          reasoningMode: null,
-          reasoningChoiceId: null,
-          choiceHistory: [
-            ...current.choiceHistory,
-            {
-              sceneId: activeScene.id,
-              sceneTitle: activeScene.title,
-              choiceId: choice.id,
-              label: choice.label,
-              summary: choice.summary,
-              rationale: text.trim(),
-              legalStability: choice.effect.legalStability ?? 0,
-              relationship: choice.effect.relationship ?? 0,
-              storeTrust: choice.effect.storeTrust ?? 0,
-            },
-          ],
-          // Setup feedback parameters
-          feedbackTitle: `⚖️ 결과 보고서 - ${activeScene.title}`,
-          feedbackBody: choice.summary + "\n\n" + (activeScene.choices?.find(c => c.id === choice.id)?.result[0]?.text ?? ""),
-          feedbackLawDelta: choice.effect.legalStability ?? 0,
-          feedbackRelationDelta: choice.effect.relationship ?? 0,
-          feedbackTrustDelta: choice.effect.storeTrust ?? 0,
-        };
-      } else if (current.reasoningMode === "objection") {
-        // Correct objection presented!
-        const success = activeScene.success!;
-        const presentedLawId = current.reasoningChoiceId!;
-
-        return {
-          ...current,
-          isReasoningModalOpen: false,
-          reasoningMode: null,
-          reasoningChoiceId: null,
-          testimonyShowingSuccess: true,
-          successDialogueIdx: 0,
-          objectionActive: true,
-          choiceHistory: [
-            ...current.choiceHistory,
-            {
-              sceneId: activeScene.id,
-              sceneTitle: activeScene.title,
-              choiceId: "objection",
-              label: "이의제기",
-              summary: "제시 법령: " + (lawPoints.find(l => l.id === presentedLawId)?.title ?? presentedLawId),
-              rationale: text.trim(),
-              legalStability: success.law,
-              relationship: success.relation,
-              storeTrust: success.profit,
-            }
-          ]
-        };
-      }
-      return current;
-    });
-  }, []);
-
-  const closeFeedbackModal = useCallback(() => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      const next = activeScene.nextScene ?? "ending";
-      return {
-        ...current,
-        isFeedbackModalOpen: false,
-        feedbackTitle: "",
-        feedbackBody: "",
-        feedbackLawDelta: 0,
-        feedbackRelationDelta: 0,
-        feedbackTrustDelta: 0,
-        currentSceneId: next,
-        visitedScenes: current.visitedScenes.includes(next) ? current.visitedScenes : [...current.visitedScenes, next],
-        lineIndex: 0,
-        resultQueue: [],
-        currentTestimonyIdx: 0,
-        testimonyShowingSuccess: false,
-        successDialogueIdx: 0,
-      };
-    });
-  }, []);
-
-  const nextStatement = useCallback(() => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      if (!activeScene || activeScene.type !== "testimony" || current.testimonyShowingSuccess) return current;
-      const testimonies = activeScene.testimony ?? [];
-      if (testimonies.length === 0) return current;
-      return {
-        ...current,
-        currentTestimonyIdx: (current.currentTestimonyIdx + 1) % testimonies.length
-      };
-    });
-  }, []);
-
-  const prevStatement = useCallback(() => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      if (!activeScene || activeScene.type !== "testimony" || current.testimonyShowingSuccess) return current;
-      const testimonies = activeScene.testimony ?? [];
-      if (testimonies.length === 0) return current;
-      return {
-        ...current,
-        currentTestimonyIdx: (current.currentTestimonyIdx - 1 + testimonies.length) % testimonies.length
-      };
-    });
-  }, []);
-
-  const presentLaw = useCallback((lawId: string) => {
-    setState((current) => {
-      const activeScene = sceneById[current.currentSceneId];
-      if (!activeScene || activeScene.type !== "testimony" || current.testimonyShowingSuccess) return current;
-      
-      const testimonies = activeScene.testimony ?? [];
-      const currentStmt = testimonies[current.currentTestimonyIdx];
-      
-      if (currentStmt?.isContradiction && currentStmt.correctLaw === lawId) {
-        // Correct law presented! Open Reasoning Modal in objection mode
-        return {
-          ...current,
-          isReasoningModalOpen: true,
-          reasoningMode: "objection",
-          reasoningChoiceId: lawId,
-        };
-      } else {
-        // Wrong law presented! Screen shake, deduct 10 law points, and check for game over
-        const nextLawScore = clampScore(current.legalStability - 10);
-        
-        if (nextLawScore <= 0) {
-          // Game over! Trigger recovery modal
-          const lawInfo = lawPoints.find(l => l.id === activeScene.lawKey) || {
-            id: activeScene.lawKey ?? "unknown",
-            title: "운영 수칙 위반",
-            body: "법적 신뢰도가 0이 되어 매장 운영이 정지되었습니다."
-          };
-          return {
-            ...current,
-            legalStability: 0,
-            isRecoveryModalOpen: true,
-            recoveryLawId: lawInfo.id,
-            recoveryFeedback: "모순된 진술에 대해 잘못된 법률을 제시하거나 엉뚱한 주장을 펼쳐 법적 신뢰도를 완전히 잃었습니다.",
-            recoveryCharClass: activeScene.spriteClass || "owner"
-          };
-        } else {
-          // Simply deduct 10 points and show alert
-          alert("이 진술은 선택한 법령과 무관하거나 모순이 없습니다. 다른 진술이나 법령을 제시해 보세요!");
-          return {
-            ...current,
-            legalStability: nextLawScore
-          };
-        }
-      }
-    });
-  }, []);
-
-  const retryScene = useCallback(() => {
-    setState((current) => {
-      // Re-initialize scene state to last saved (or start state)
-      // To keep it simple, we reset scores to 50 (or current - delta)
-      // In the original, it reset stats to sceneStartState. We can just set legalStability back to 50 (or last scene's value)
-      return {
-        ...current,
-        legalStability: 50, // default reset
-        isRecoveryModalOpen: false,
-        recoveryLawId: null,
-        recoveryFeedback: null,
-        recoveryCharClass: null,
-        currentTestimonyIdx: 0,
-        testimonyShowingSuccess: false,
-        successDialogueIdx: 0,
-      };
-    });
-  }, []);
-
-  const closeRecoveryModal = useCallback(() => {
-    setState((current) => ({
-      ...current,
-      isRecoveryModalOpen: false,
-      recoveryLawId: null,
-      recoveryFeedback: null,
-      recoveryCharClass: null,
-    }));
-  }, []);
-
-  const turnOffObjection = useCallback(() => {
-    setState((current) => ({
-      ...current,
-      objectionActive: false
-    }));
-  }, []);
-
-  const reset = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setState(initialState);
-  }, []);
-
-  const load = useCallback(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    try {
-      setState({ ...initialState, ...JSON.parse(raw) });
-      return true;
-    } catch {
-      return false;
+        currentLineIndex: current.currentLineIndex + 1,
+        backlog: addLineToBacklog(current.backlog, line),
+      }));
+      return;
     }
-  }, []);
-
-  const save = useCallback(() => {
-    persist(state);
-  }, [state]);
-
-  const setTextScale = useCallback((textScale: number) => {
-    setState((current) => ({ ...current, textScale }));
-  }, []);
-
-  const toggleQuickMode = useCallback(() => {
-    setState((current) => ({ ...current, quickMode: !current.quickMode }));
-  }, []);
-
-  const toggleMuted = useCallback(() => {
-    setState((current) => ({ ...current, muted: !current.muted }));
-  }, []);
-
-  const setReflection = useCallback((sceneId: string, value: string) => {
+    if (scene.choices?.length && !sceneResolved) {
+      setState((current) => ({
+        ...current,
+        currentLineIndex: scene.dialogue.length,
+        backlog: addLineToBacklog(current.backlog, line),
+      }));
+      return;
+    }
+    if (scene.nextSceneId) {
+      setState((current) => ({
+        ...current,
+        currentSceneId: scene.nextSceneId!,
+        currentLineIndex: 0,
+        backlog: addLineToBacklog(current.backlog, line),
+        visitedScenes: current.visitedScenes.includes(scene.nextSceneId!)
+          ? current.visitedScenes
+          : [...current.visitedScenes, scene.nextSceneId!],
+      }));
+      return;
+    }
     setState((current) => ({
       ...current,
-      reflections: {
-        ...current.reflections,
-        [sceneId]: value,
-      },
+      currentLineIndex: scene.dialogue.length,
+      backlog: addLineToBacklog(current.backlog, line),
     }));
+  }, [isAtLastLine, isDemoComplete, line, scene.choices, scene.dialogue.length, scene.nextSceneId, sceneResolved, showChoices]);
+
+  const choose = useCallback((choice: Choice) => {
+    setState((current) => {
+      const applied = applyChoiceEffects(current, choice);
+      const lawPoints = choice.lawPointId && !applied.unlockedLawPoints.includes(choice.lawPointId)
+        ? [...applied.unlockedLawPoints, choice.lawPointId]
+        : applied.unlockedLawPoints;
+      const nextState: GameState = {
+        ...applied,
+        currentSceneId: current.currentSceneId,
+        currentLineIndex: current.currentLineIndex,
+        choiceHistory: [...applied.choiceHistory, {
+          sceneId: current.currentSceneId,
+          choiceId: choice.id,
+          choiceLabel: choice.label,
+          choiceType: choice.type,
+          resultText: choice.resultText,
+        }],
+        backlog: line ? addLineToBacklog(current.backlog, line) : current.backlog,
+        unlockedLawPoints: lawPoints,
+        resolvedSceneIds: applied.resolvedSceneIds.includes(current.currentSceneId)
+          ? applied.resolvedSceneIds
+          : [...applied.resolvedSceneIds, current.currentSceneId],
+        visitedScenes: current.visitedScenes,
+      };
+      return nextState;
+    });
+    setPendingSceneId(choice.nextSceneId ?? null);
+    setLastOutcome({
+      resultText: choice.resultText,
+      resultAsset: choice.resultAsset,
+      lawPointId: choice.lawPointId,
+      emphasis: choice.emphasis,
+      characters: choice.resultCharacters,
+    });
+  }, [line]);
+
+  const restart = useCallback(() => {
+    setState(initialGameState);
+    setLastOutcome(null);
+    setPendingSceneId(null);
+  }, []);
+
+  const save = useCallback(() => saveGame(state), [state]);
+  const load = useCallback(() => {
+    const saved = loadGame();
+    if (saved) {
+      setState({
+        ...initialGameState,
+        ...saved,
+        affinity: { ...initialGameState.affinity, ...saved.affinity },
+        flags: { ...initialGameState.flags, ...saved.flags },
+        resolvedSceneIds: saved.resolvedSceneIds ?? [],
+        appliedRecallIds: saved.appliedRecallIds ?? [],
+        selectedEndingId: saved.selectedEndingId
+          ?? (saved.currentSceneId === "ending" ? selectEndingId({ ...initialGameState, ...saved }) : null),
+      });
+      setLastOutcome(null);
+      setPendingSceneId(null);
+      return true;
+    }
+    return false;
+  }, []);
+
+  const clearOutcome = useCallback(() => setLastOutcome(null), []);
+
+  const completeChoiceTransition = useCallback(() => {
+    if (!pendingSceneId) return;
+    setState((current) => {
+      const nextState: GameState = {
+        ...current,
+        currentSceneId: pendingSceneId,
+        currentLineIndex: 0,
+        visitedScenes: current.visitedScenes.includes(pendingSceneId)
+          ? current.visitedScenes
+          : [...current.visitedScenes, pendingSceneId],
+      };
+      return pendingSceneId === "ending"
+        ? { ...nextState, selectedEndingId: selectEndingId(nextState) }
+        : nextState;
+    });
+    setPendingSceneId(null);
+  }, [pendingSceneId]);
+
+  const applyRecall = useCallback((recall: Recall) => {
+    setState((current) => {
+      const applied = applyRecallEffects(current, recall);
+      return {
+        ...applied,
+        appliedRecallIds: applied.appliedRecallIds.includes(recall.id)
+          ? applied.appliedRecallIds
+          : [...applied.appliedRecallIds, recall.id],
+      };
+    });
+  }, []);
+
+  const jumpToScene = useCallback((sceneId: string, preserveState: boolean) => {
+    setState((current) => {
+      const source = preserveState ? current : initialGameState;
+      const nextState: GameState = {
+        ...source,
+        affinity: { ...source.affinity },
+        flags: { ...source.flags },
+        currentSceneId: sceneId,
+        currentLineIndex: 0,
+        resolvedSceneIds: source.resolvedSceneIds.filter((id) => id !== sceneId),
+        visitedScenes: source.visitedScenes.includes(sceneId) ? source.visitedScenes : [...source.visitedScenes, sceneId],
+        selectedEndingId: null,
+      };
+      return sceneId === "ending" ? { ...nextState, selectedEndingId: selectEndingId(nextState) } : nextState;
+    });
+    setLastOutcome(null);
+    setPendingSceneId(null);
   }, []);
 
   return {
     state,
     scene,
-    lines,
-    choices,
-    currentLine,
-    canShowChoices,
+    line,
+    showChoices,
+    isDemoComplete,
+    lastOutcome,
+    pendingRecall,
+    pendingSceneId,
     advance,
-    openReasoningModal,
-    closeReasoningModal,
-    submitReasoning,
-    closeFeedbackModal,
-    nextStatement,
-    prevStatement,
-    presentLaw,
-    retryScene,
-    closeRecoveryModal,
-    turnOffObjection,
-    reset,
+    choose,
+    clearOutcome,
+    completeChoiceTransition,
+    applyRecall,
+    jumpToScene,
+    restart,
     save,
     load,
-    setTextScale,
-    toggleQuickMode,
-    toggleMuted,
-    setReflection,
+    moveToScene,
   };
-}
+};
